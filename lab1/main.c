@@ -3,14 +3,13 @@
 
 int main()
 {
-    char expression[100];
+    char exp[100];
 
-    printf("Arithmetic ilerhiilel oruulna uu: ");
-    scanf("%[^\n]", expression);
+    printf("Ilerhiilel oruulna uu: ");
+    fgets(exp, sizeof(exp), stdin);
 
-    int result = interpret(expression);
-    printf("Ur dun: %d\n", result);
-
+    int result = interpret(exp);
+    printf("Ur dun = %d\n", result);
 
     return 0;
 }

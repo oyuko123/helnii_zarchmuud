@@ -1,142 +1,77 @@
-#include <ctype.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 #define MAX 50
 
-int tokenize(char expression[], char tokens[][20])
+int tokenize(char exp[], char *tokens[])
 {
+    int i = 0, k = 0;
 
-    int i = 0, j = 0, k = 0;
-
-    while (expression[i] != '\0')
+    while (exp[i])
     {
-
-        if (expression[i] == ' ')
-        {
-            i++;
-            continue;
-        }
-
-        if (isdigit(expression[i]))
-        {
-            j = 0;
-
-            while (isdigit(expression[i]))
-            {
-                tokens[k][j++] = expression[i++];
-            }
-
-            tokens[k][j] = '\0';
+        if (exp[i] == "+" || exp[i] == "-"){ 
             k++;
-        }
-
-        else if (expression[i] == '+' || expression[i] == '-' ||
-                 expression[i] == '*' || expression[i] == '/' ||
-                 expression[i] == '(' || expression[i] == ')')
-        {
-
-            tokens[k][0] = expression[i];
-            tokens[k][1] = '\0';
-
+            strcat(tokens[k], exp[i]);
             k++;
-            i++;
-        }
 
+        }
         else
         {
-            i++;
+            strcat(tokens[k], exp[i]);
         }
+
+        i++;
     }
 
     return k;
 }
 
-int precedence(char op)
+int evalTokens(char *tokens[], int *i, int end)
 {
-    if (op == '+' || op == '-') return 1;
-    if (op == '*' || op == '/') return 2;
-    return 0;
-}
+    int result = 0;
+    int sign = 1;
 
-int apply(int a, int b, char op)
-{
-    if (op == '+') return a + b;
-    if (op == '-') return a - b;
-    if (op == '*') return a * b;
-    if (op == '/') return a / b;
-    return 0;
-}
-
-int interpret(char expression[])
-{
-    char tokens[MAX][20];
-    int count = tokenize(expression, tokens);
-
-    printf("Tokens:\n");
-    for (int i = 0; i < count; i++)
+    while (*i < end)
     {
-        printf("%s\n", tokens[i]);
-    }
-
-    int values[MAX];
-    char ops[MAX];
-
-    int vtop = -1;
-    int otop = -1;
-
-    for (int i = 0; i < count; i++)
-    {
-
-        if (isdigit(tokens[i][0]))
+        if (strcmp(tokens[*i], "+") == 0)
         {
-            values[++vtop] = atoi(tokens[i]);
+            sign = 1;
         }
-
-        else if (tokens[i][0] == '(')
+        else if (strcmp(tokens[*i], "-") == 0)
         {
-            ops[++otop] = '(';
+            sign = -1;
         }
-
-        else if (tokens[i][0] == ')')
+        else if (strcmp(tokens[*i], "(") == 0)
         {
-            while (ops[otop] != '(')
-            {
-                int b = values[vtop--];
-                int a = values[vtop--];
-                char op = ops[otop--];
-
-                values[++vtop] = apply(a, b, op);
-            }
-            otop--;
+            (*i)++;
+            int value = evalTokens(tokens, i, end);
+            result += sign * value;
         }
-
+        else if (strcmp(tokens[*i], ")") == 0)
+        {
+            return result;
+        }
         else
         {
-            char op = tokens[i][0];
-
-            while (otop >= 0 && precedence(ops[otop]) >= precedence(op))
-            {
-                int b = values[vtop--];
-                int a = values[vtop--];
-                char topop = ops[otop--];
-
-                values[++vtop] = apply(a, b, topop);
-            }
-
-            ops[++otop] = op;
+            int value = atoi(tokens[*i]);
+            result += sign * value;
         }
+
+        (*i)++;
     }
 
-    while (otop >= 0)
-    {
-        int b = values[vtop--];
-        int a = values[vtop--];
-        char op = ops[otop--];
+    return result;
+}
 
-        values[++vtop] = apply(a, b, op);
-    }
+int interpret(char exp[])
+{
+    char *tokens[MAX];          
+    int count = tokenize(exp, tokens);
 
-    return values[vtop];
+    int i = 0;
+    int result = evalTokens(tokens, &i, count);
 
+    return result;
 }

@@ -1,6 +1,6 @@
 #include "unity.h"
 
-int interpret(char expression[]);
+int interpret(char exp[]);
 
 void setUp(void) {}
 void tearDown(void) {}
@@ -15,9 +15,9 @@ void test_subtraction(void)
     TEST_ASSERT_EQUAL(5, interpret("7-2"));
 }
 
-void test_complex_expression(void)
+void test_parentheses(void)
 {
-    TEST_ASSERT_EQUAL(14, interpret("2*(4+3)"));
+    TEST_ASSERT_EQUAL(3, interpret("5-(8-4)+2"));
 }
 
 int main(void)
@@ -26,7 +26,7 @@ int main(void)
 
     RUN_TEST(test_addition);
     RUN_TEST(test_subtraction);
-    RUN_TEST(test_complex_expression);
+    RUN_TEST(test_parentheses);
 
     return UNITY_END();
 }
